@@ -1,11 +1,10 @@
-import os
+import datetime
+from random import Random
 
 import discord as discord
-from discord import Member
 from discord.ext import commands
 from discord.utils import get
-
-from warmup import *
+from pip._vendor import requests
 
 bot = commands.Bot(
     command_prefix="!",  # Change to desired prefix
@@ -23,9 +22,9 @@ async def on_ready():  # When the bot is ready
 async def pong(ctx):
     await ctx.send('pong')
 
-#@bot.command()
-#async def test(ctx, arg):
- #   await ctx.send(arg)
+@bot.command()
+async def test(ctx, arg):
+    await ctx.send(arg)
 
 #--------------------------------------
 #Warm-up
@@ -75,6 +74,19 @@ async def admin(ctx, user: discord.Member):
 #--------------------------------------
 #It's all fun and games
 
+@bot.command()
+async def xkcd(ctx,num=None): #async func to get comic
+    if num is None:
+        num = Random().randrange(100,250)
+    with requests.get(f'https://xkcd.com/{num}/info.0.json') as resp: #getting data
+        data = resp.json() #Pulling data
+    num = data['num']
+    alt = data['alt']
+    title = data['safe_title']
+    desc = f'{alt} Link to the original [here](https://xkcd.com/{num}).'
+    em = discord.Embed(title=f'{title}: #{num}', color = 0x000000, timestamp=datetime.datetime.now(), description = desc) #Because black is nice.
+    em.set_image(url = data['img']) #making embed
+    em.set_footer(text=f'Requested by {ctx.message.author.display_name}')
+    await ctx.send(data['img'])
 
-token = "ODkyODIzMTk0Nzk1Mzc2NjUw.YVSgZQ.COMVz_wTprXIJep2rxKjq3ZFJqk"
 bot.run(token)  # Starts the bot
